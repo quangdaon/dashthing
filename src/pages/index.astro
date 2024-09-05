@@ -1,6 +1,36 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import type { Site } from '../schemas/site';
+import { loadSites } from '../utils/sites';
+
+const sites = await loadSites();
 ---
 
-<Layout title="Welcome to Astro.">
+<Layout title="Welcome home, idiot.">
+  {
+    sites.map((site: Site) => (
+      <div class="site">
+        <a href={site.url} data-hotkey={site.hotkey}>
+          {site.label}
+        </a>
+      </div>
+    ))
+  }
 </Layout>
+
+<script is:inline>
+  const nodes = document.querySelectorAll('[data-hotkey]');
+  const hotkeys = [...nodes].map((node) => ({
+    hotkey: node.dataset.hotkey,
+    href: node.href,
+  }));
+
+  document.addEventListener('keydown', (evt) => {
+    for (const { hotkey, href } of hotkeys) {
+      if (evt.key.toLowerCase() === hotkey.toLowerCase()) {
+        evt.preventDefault();
+        window.location.href = href;
+      }
+    }
+  });
+</script>
