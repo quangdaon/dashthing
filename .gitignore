@@ -23,4 +23,5 @@ pnpm-debug.log*
 # jetbrains setting folder
 .idea/
 
-src/data/sites.yml
+src/config/*.yml
+!src/config/*.example.yml

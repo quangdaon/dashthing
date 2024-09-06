@@ -1,5 +1,26 @@
-- label: Google
+- type: site
+  label: Google
   url: https://www.google.com
   hotkey: g
-- label: Example
+- type: site
+  label: Example
   url: https://www.example.com
+- type: folder
+  label: Folder
+  hotkey: f
+  children:
+    - type: site
+      label: YouTube
+      url: https://www.youtube.com/
+      hotkey: y
+    - type: site
+      label: YouTube Again
+      url: https://www.youtube.com/
+    - type: folder
+      label: Lemons
+      hotkey: l
+      children:
+        - type: site
+          label: Yahoo
+          url: https://www.yahoo.com/
+          hotkey: y

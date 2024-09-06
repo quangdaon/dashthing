@@ -1,14 +1,47 @@
 <script lang="ts">
-  import type { Bookmark } from '../schemas/bookmark';
+  import type { Bookmark, Folder } from '../schemas/bookmark';
+  import BookmarkTileFolder from './BookmarkTileFolder.svelte';
+  import BookmarkTileSite from './BookmarkTileSite.svelte';
 
   export let bookmarks: Bookmark[] = [];
 
+  let history: Bookmark[][] = [];
+
+  const openFolder = (folder: Folder) => {
+    history = [...history, bookmarks];
+    bookmarks = folder.children;
+  };
+
+  const closeFolder = () => {
+    if (!history.length) return;
+    bookmarks = history.pop() as Bookmark[];
+    history = history;
+  };
+
+  const handleBookmarkHotkey = (bookmark: Bookmark) => {
+    switch (bookmark.type) {
+      case 'site':
+        window.location.href = bookmark.url;
+        break;
+      case 'folder':
+        openFolder(bookmark as Folder);
+        break;
+    }
+  };
+
   const handleKeydown = (evt: KeyboardEvent) => {
     const hotkeyed = bookmarks.filter((e) => e.hotkey);
-    for (const { hotkey, url } of hotkeyed) {
-      if (evt.key.toLowerCase() === hotkey?.toLowerCase()) {
+
+    if (evt.key === 'Backspace' && history.length > 0) {
+      evt.preventDefault();
+      console.log('bcak');
+      closeFolder();
+    }
+
+    for (const bookmark of hotkeyed) {
+      if (evt.key.toLowerCase() === bookmark.hotkey?.toLowerCase()) {
         evt.preventDefault();
-        window.location.href = url;
+        handleBookmarkHotkey(bookmark);
       }
     }
   };
@@ -17,53 +50,50 @@
 <svelte:document on:keydown={handleKeydown} />
 
 {#if bookmarks}
-  <div class="sites">
-    {#each bookmarks as site}
-      <div class="site">
-        <a href={site.url} data-hotkey={site.hotkey}>
-          <h2 class="site-label">{site.label}</h2>
-          <p class="site-url">
-            {#if site.hotkey}
-              ({site.hotkey})
-            {/if}
-            {site.url}
-          </p>
-        </a>
+  <div class="bookmarks">
+    {#each bookmarks as bookmark (bookmark)}
+      <div class="bookmark">
+        {#if bookmark.type === 'site'}
+          <BookmarkTileSite site={bookmark} />
+        {/if}
+        {#if bookmark.type === 'folder'}
+          <BookmarkTileFolder
+            folder={bookmark}
+            on:click={() => openFolder(bookmark)}
+          />
+        {/if}
       </div>
     {/each}
   </div>
 {/if}
 
+{#if history.length}
+  <button on:click={() => closeFolder()}>←</button>
+{/if}
+
 <style>
-  .sites {
+  .bookmarks {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     margin-top: 2em;
     gap: 1em;
   }
 
-  .site {
+  .bookmark {
+    position: relative;
     border: 1px solid var(--color-link-decoration);
     border-radius: 0.25em;
   }
 
-  .site a {
-    display: block;
-    text-decoration: none;
-    padding: 1em;
-    text-align: center;
+  .bookmark:hover {
+    text-shadow: 0 0 0.5em var(--color-link-decoration);
   }
 
-  .site a:hover {
-    text-shadow: 0 0 0.5em currentColor;
-  }
-
-  .site-label {
-    margin: 0;
-  }
-
-  .site-url {
-    font-size: 0.875em;
-    font-style: italic;
+  button {
+    background: none;
+    margin-top: 1rem;
+    font-size: 2em;
+    border: none;
+    color: var(--color-link-decoration);
   }
 </style>

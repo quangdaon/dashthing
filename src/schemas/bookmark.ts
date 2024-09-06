@@ -1,9 +1,30 @@
 import { z } from 'astro/zod';
 
-export const BookmarkSchema = z.array(z.object({
+const BaseBookmarkSchema = z.object({
   label: z.string(),
-  url: z.string(),
-  hotkey: z.string().optional()
-}))
+  hotkey: z.string().optional(),
+});
 
-export type Bookmark = z.infer<typeof BookmarkSchema>[number];
+const SiteSchema = BaseBookmarkSchema.extend({
+  type: z.literal('site'),
+  url: z.string(),
+});
+
+export type Folder = z.infer<typeof BaseBookmarkSchema> & {
+  type: 'folder';
+  children: Bookmark[];
+};
+
+// @ts-ignore
+const FolderSchema: z.ZodType<Folder> = BaseBookmarkSchema.extend({
+  type: z.literal('folder'),
+  children: z.lazy(() => BookmarkSchema.array()),
+});
+
+// @ts-ignore
+const BookmarkSchema = z.discriminatedUnion('type', [SiteSchema, FolderSchema]);
+
+export const BookmarksSchema = BookmarkSchema.array();
+
+export type Site = z.infer<typeof SiteSchema>;
+export type Bookmark = Site | Folder;
