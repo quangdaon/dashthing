@@ -1,29 +1,15 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import type { Site } from '../schemas/site';
-import { loadSites } from '../utils/sites';
+import Sites from '../components/Bookmarks.svelte';
+import { loadBookmarks } from '../utils/bookmarks';
 
-const sites = await loadSites();
+const bookmarks = await loadBookmarks();
 ---
 
 <Layout title="Welcome home, idiot.">
   <div class="container">
     <h1>Hello, World!</h1>
-    <div class="sites">
-      {
-        sites.map((site: Site) => (
-          <div class="site">
-            <a href={site.url} data-hotkey={site.hotkey}>
-              <h2 class="site-label">{site.label}</h2>
-              <p class="site-url">
-                {site.hotkey && `(${site.hotkey})`}
-                {site.url}
-              </p>
-            </a>
-          </div>
-        ))
-      }
-    </div>
+    <Sites {bookmarks} />
   </div>
 </Layout>
 
@@ -43,37 +29,3 @@ const sites = await loadSites();
     }
   });
 </script>
-
-<style is:inline>
-  .sites {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    margin-top: 2em;
-    gap: 1em;
-  }
-
-  .site {
-    border: 1px solid var(--color-link-decoration);
-    border-radius: 0.25em;
-  }
-
-  .site a {
-    display: block;
-    text-decoration: none;
-    padding: 1em;
-    text-align: center;
-  }
-
-  .site a:hover {
-    text-shadow: 0 0 0.5em currentColor;
-  }
-
-  .site-title {
-    margin: 0;
-  }
-
-  .site-url {
-    font-size: 0.875em;
-    font-style: italic;
-  }
-</style>

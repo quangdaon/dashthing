@@ -2,6 +2,6 @@
 
 # IMPORTANT:
 
-Copy src/data/sites.example.yml as sites.yml.
+Copy src/config/bookmarks.example.yml as bookmarks.yml.
 
 Inspired by [Hompagerizer](https://github.com/Adam13531/homepagerizer/), but not offense Adam, it looks like ass.
