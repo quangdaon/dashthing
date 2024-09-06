@@ -2,7 +2,19 @@
   import type { Bookmark } from '../schemas/bookmark';
 
   export let bookmarks: Bookmark[] = [];
+
+  const handleKeydown = (evt: KeyboardEvent) => {
+    const hotkeyed = bookmarks.filter((e) => e.hotkey);
+    for (const { hotkey, url } of hotkeyed) {
+      if (evt.key.toLowerCase() === hotkey?.toLowerCase()) {
+        evt.preventDefault();
+        window.location.href = url;
+      }
+    }
+  };
 </script>
+
+<svelte:document on:keydown={handleKeydown} />
 
 {#if bookmarks}
   <div class="sites">
